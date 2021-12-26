@@ -1,0 +1,20 @@
+server {
+    listen 80 default_server;
+
+    root /opt/mtbt;
+    index index.php;
+
+    server_name ${NGINX_SERVER_NAME};
+    client_max_body_size ${UPLOAD_MAX_FILE_SIZE};
+
+    location / {
+        try_files ${DSIGN}uri ${DSIGN}uri/ =500;
+    }
+
+    location ~ \.php${DSIGN} {
+        fastcgi_pass mantisbt:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME ${DSIGN}document_root${DSIGN}fastcgi_script_name;
+        include fastcgi_params;
+    }
+}

@@ -1,0 +1,7 @@
+/config.mk
+/.env
+/.mt_config.env
+/.my.cnf
+/mantisbt/mtbt.ini
+/nginx/mtbt.conf.template
+/mantisbt_src/

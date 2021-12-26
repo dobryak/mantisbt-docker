@@ -1,0 +1,88 @@
+version: "3.4"
+
+services:
+    nginx:
+        image: nginx:${NGINX_IMG_VER}
+        networks:
+            - net
+        volumes:
+            - ./nginx:/etc/nginx/templates
+            - ./mantisbt_src:/opt/mtbt
+        ports:
+            - 8383:80
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+        depends_on:
+            - mantisbt
+
+    mantisbt:
+        build:
+            context: ./mantisbt
+            args:
+                PHP_IMG_VER: ${PHP_IMG_VER}
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+            target: runtime
+        volumes:
+            - ./mantisbt_src:/opt/mtbt
+        networks:
+            - net
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+        depends_on:
+            - mysql
+
+    mantisbt-install:
+        build:
+            context: ./mantisbt
+            args:
+                MANTIS_GIT_URL: ${MANTIS_GIT_URL}
+                MANTIS_BRANCH: ${MANTIS_BRANCH}
+                PHP_IMG_VER: ${PHP_IMG_VER}
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+            target: install
+        env_file: .mt_config.env
+        volumes:
+            - ./mantisbt_src:/tmp/mantisbt_src
+        environment:
+            - INSTALL_DST_DIR=/tmp/mantisbt_src
+        networks:
+            - net
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+        depends_on:
+            - mysql
+
+    mysql:
+        image: mysql:${MYSQL_IMG_VER}
+        volumes:
+            - mysql:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD
+            - MYSQL_USER
+            - MYSQL_PASSWORD
+            - MYSQL_DATABASE
+        logging:
+            driver: json-file
+            options:
+              max-size: "10m"
+              max-file: "3"
+        networks:
+            - net
+
+volumes:
+    mysql:
+
+networks:
+    net:
+        driver: bridge
