@@ -112,5 +112,18 @@ $(BACKUP_DIR):
 ./mantisbt_src/:
 	@mkdir $@ && $(DC) up --build -d $(SERVICE_MYSQL) && $(DC) up --build $(SERVICE_MANTISBT_INSTALL) && $(DC) rm -fsv $(SERVICE_MANTISBT_INSTALL)
 
+.PHONY: offline
+offline: export online=0
+offline: maintenance
+
+.PHONY: online
+online: export online=1
+online: maintenance
+
+.PHONY: maintenance
+maintenance: ./mantisbt_src/
+	@test $(online) -eq 1 && (rm -f ./mantisbt_src/mantis_offline.php || true) || \
+		cp ./mantisbt_src/mantis_offline.php.sample ./mantisbt_src/mantis_offline.php
+
 config.mk: config.mk.example
 	@cp $< $@
