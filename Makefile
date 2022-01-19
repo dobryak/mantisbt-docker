@@ -66,8 +66,9 @@ clear:
 .PHONY: backup
 backup: .my.cnf $(BACKUP_DIR)
 	@cp .my.cnf $(BACKUP_DIR)/.my.cnf && \
-		echo -n "Backuping... " && \
-		$(DC) run --rm -u $$(id -u):$$(id -g) -v $(BACKUP_DIR)/:/tmp/backup/ $(SERVICE_MYSQL) \
+		BACKUP_PATH=$$(cd $(BACKUP_DIR) && pwd) && \
+		echo -n "Backuping to $${BACKUP_PATH}... " && \
+		$(DC) run --rm -u $$(id -u):$$(id -g) -v $${BACKUP_PATH}/:/tmp/backup/ $(SERVICE_MYSQL) \
 			bash -c "mysqldump --defaults-file=/tmp/backup/.my.cnf  bugtracker | gzip > /tmp/backup/$(BACKUP_SQL_FILE_NAME)" && \
 		echo "[done]" || echo "[failed]" && \
 		echo "MySQL backup: $(BACKUP_SQL_FILE)"
