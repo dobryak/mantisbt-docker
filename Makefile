@@ -81,8 +81,9 @@ restore: .my.cnf $(BACKUP_DIR)
 				test  "$${answer}" == "y" && \
 				( \
 					cp .my.cnf $(BACKUP_DIR)/.my.cnf && \
-					echo -n "Restoring the dump... " && \
-					$(DC) run --rm -u $$(id -u):$$(id -g) -v $(BACKUP_DIR)/:/tmp/backup/ $(SERVICE_MYSQL) \
+					BACKUP_PATH=$$(cd $(BACKUP_DIR) && pwd) && \
+					echo -n "Restoring the dump $${BACKUP_PATH}/$(BACKUP_SQL_FILE_NAME)... " && \
+					$(DC) run --rm -u $$(id -u):$$(id -g) -v $${BACKUP_PATH}/:/tmp/backup/ $(SERVICE_MYSQL) \
 						bash -c "cat /tmp/backup/$(BACKUP_SQL_FILE_NAME) | gunzip | mysql --defaults-file=/tmp/backup/.my.cnf $(MYSQL_DATABASE)" && \
 					echo "[done]" \
 				) || true \
