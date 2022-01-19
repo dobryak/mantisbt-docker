@@ -1,5 +1,6 @@
 include config.mk
 
+SHELL := bash
 D := docker
 DC := docker-compose
 
